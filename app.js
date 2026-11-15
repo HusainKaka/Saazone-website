@@ -103,7 +103,10 @@ function rail({ id, title, eyebrow, description, content, label, auto = false, i
 function hero() {
   return `<section class="hero assembly-hero" aria-labelledby="hero-title">
     <div class="hero-scene"><div class="hero-media assembly-media">
-      <img id="assembly-poster" src="/assets/assembly/brown-portrait/hero-poster.webp" alt="A gold-tone watch with a chocolate leather strap assembling against a brown background" width="1080" height="1920" loading="eager" fetchpriority="high">
+      <picture>
+        <source media="(min-width:1024px) and (orientation:landscape) and (pointer:fine)" srcset="/assets/assembly/brown-portrait/hero-desktop-detail.webp" width="1260" height="2240">
+        <img id="assembly-poster" src="/assets/assembly/brown-portrait/hero-poster.webp" alt="A gold-tone watch with a chocolate leather strap assembling against a brown background" width="1080" height="1920" loading="eager" fetchpriority="high">
+      </picture>
     </div></div>
     <div class="shell hero-shell"><div class="hero-copy">
       <p class="eyebrow">TIMEPIECES IN KENYA</p>

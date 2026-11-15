@@ -22,7 +22,7 @@
       video.playsInline = true;
       video.preload = "auto";
       video.setAttribute("aria-hidden", "true");
-      poster.after(video);
+      poster.closest("picture").after(video);
 
       const playhead = { progress: 0 };
       const frameRate = 24;
@@ -111,7 +111,9 @@
       ScrollTrigger.sort();
       ScrollTrigger.refresh();
 
-      video.src = `${videoBase}/hero-${mobile ? 900 : 1080}.mp4`;
+      const desktopDetail = !mobile && matchMedia("(min-width:1024px) and (orientation:landscape) and (pointer:fine)").matches;
+      const clip = desktopDetail ? "desktop-detail" : mobile ? "900" : "1080";
+      video.src = `${videoBase}/hero-${clip}.mp4`;
       return cleanup;
     });
   }
