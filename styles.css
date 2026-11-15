@@ -373,9 +373,9 @@ body:has(.assembly-hero) .desktop-nav a[aria-current="page"]{text-decoration-col
 .assembly-media{
   position:absolute;inset:0;width:100%;height:100%;
 }
-.assembly-media img,.assembly-media canvas{width:100%;height:100%;object-fit:cover;object-position:center 48%}
-.assembly-media canvas{position:absolute;inset:0}
-.assembly-media canvas[hidden]{display:none}
+.assembly-media img,.assembly-media .assembly-video{width:100%;height:100%;object-fit:cover;object-position:center 48%}
+.assembly-video{position:absolute;inset:0;pointer-events:none}
+.assembly-video[hidden]{display:none}
 .assembly-poster-covered{visibility:hidden}
 @media (min-width:1024px) and (orientation:landscape){
   .assembly-hero{background:#382216}
@@ -393,10 +393,8 @@ body:has(.assembly-hero) .desktop-nav a[aria-current="page"]{text-decoration-col
 .assembly-hero .hero-title{font-size:clamp(1.75rem,2.5vw,2.75rem);line-height:1.02;letter-spacing:-.045em}
 .assembly-hero .hero-title em{display:block;color:inherit}
 .assembly-hero .primary:focus-visible{outline-color:var(--cream)}
-.assembly-hero .hero-actions{margin-block-start:clamp(14px,3.6vh,34px)}
-.assembly-hero .primary{max-width:100%}
-.assembly-hint{margin-block-start:12px;color:var(--cream);font-size:.8rem;line-height:1.35}
-.assembly-hint span{margin-inline-start:5px;color:var(--orange)}
+.assembly-hero .hero-actions{display:flex;justify-content:center;margin-block-start:clamp(14px,3.6vh,34px)}
+.assembly-hero .primary{max-width:100%;border-radius:999px;font-size:.98rem;min-height:48px;text-align:center;text-shadow:none}
 @media (orientation:portrait){
   .assembly-hero .hero-shell{padding-block:clamp(50px,10svh,100px);align-items:start}
   .assembly-hero .hero-copy{width:100%;text-align:center;color:var(--cream)}
@@ -404,7 +402,6 @@ body:has(.assembly-hero) .desktop-nav a[aria-current="page"]{text-decoration-col
   .assembly-hero .hero-title{font-size:clamp(1.65rem,5.6vw,3.25rem)}
   .assembly-hero .hero-title em{display:inline}
   .assembly-hero .hero-actions{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px 14px;margin-block-start:14px}
-  .assembly-hint{margin-block-start:0}
 }
 @media (max-width:767px){
   .assembly-hero{--stage-height:calc(100svh - var(--header) - env(safe-area-inset-top))}
@@ -466,4 +463,3 @@ body:has(.assembly-hero) .desktop-nav a[aria-current="page"]{text-decoration-col
  .assembly-hero .hero-shell{align-items:center}
  .assembly-hero .hero-copy{width:27%;max-width:22rem;color:var(--cream)}
 }
-.assembly-touch-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 48%;pointer-events:none}

@@ -20,7 +20,12 @@
       if (Lenis && conditions.desktop && conditions.precisePointer) {
         lenis = new Lenis({
           autoRaf: true, lerp: .165, wheelMultiplier: 1.25,
-          prevent: node => document.body.classList.contains("dialog-open") || Boolean(node.closest?.("dialog, .rail")),
+          prevent: node => {
+            const heroMotion = ScrollTrigger.getById("watch-assembly");
+            return document.body.classList.contains("dialog-open")
+              || Boolean(node.closest?.("dialog, .rail"))
+              || Boolean(heroMotion && window.scrollY < heroMotion.end);
+          },
         });
         lenis.on("scroll", ScrollTrigger.update);
       }

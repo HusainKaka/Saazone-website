@@ -104,15 +104,13 @@ function rail({ id, title, eyebrow, description, content, label, auto = false, i
 function hero() {
   return `<section class="hero assembly-hero" aria-labelledby="hero-title">
     <div class="hero-scene"><div class="hero-media assembly-media">
-      <img id="assembly-poster" src="/assets/assembly/brown-portrait/frame-000.webp" alt="A gold-tone watch with a chocolate leather strap assembling against a brown background" width="900" height="1600" loading="eager" fetchpriority="high">
-      <canvas id="assembly-canvas" aria-hidden="true" hidden></canvas>
+      <img id="assembly-poster" src="/assets/assembly/brown-portrait/hero-poster.webp" alt="A gold-tone watch with a chocolate leather strap assembling against a brown background" width="1080" height="1920" loading="eager" fetchpriority="high">
     </div></div>
     <div class="shell hero-shell"><div class="hero-copy">
       <p class="eyebrow">TIMEPIECES IN KENYA</p>
       <h1 class="hero-title" id="hero-title">More Than <em>a Watch.</em></h1>
       <div class="hero-actions">
         ${links("Explore collections", "#collections", "button primary")}
-        <p class="assembly-hint" hidden>Scroll to assemble <span aria-hidden="true">↓</span></p>
       </div>
     </div></div>
   </section>`;
