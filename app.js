@@ -21,6 +21,7 @@ const icons = {
   close: '<path d="m6 6 12 12M18 6 6 18"/>',
   truck: '<path d="M3 6h11v10H3zm11 4h4l3 3v3h-7"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>',
   shield: '<path d="M12 3 5 6v5c0 4 3 7 7 10 4-3 7-6 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/>',
+  star: '<path d="m12 2.8 2.8 5.8 6.4.9-4.6 4.5 1.1 6.4-5.7-3-5.7 3 1.1-6.4L2.8 9.5l6.4-.9L12 2.8Z"/>',
   pin: '<path d="M19 10c0 4-7 10-7 10S5 14 5 10a7 7 0 1 1 14 0Z"/><circle cx="12" cy="10" r="2"/>',
   watch: '<path d="m8 7 1-4h6l1 4m-8 10 1 4h6l1-4"/><circle cx="12" cy="12" r="6"/><path d="M12 9v3l2 1"/>',
   pause: '<path d="M9 5v14m6-14v14"/>',
@@ -123,10 +124,10 @@ function home() {
   main.innerHTML = `${hero()}
     <section class="promises" aria-label="Shopping with SaaZone"><div class="shell promise-grid" data-reveal>
     ${[
-      ["truck", "Free delivery", "Anywhere in Kenya"],
-      ["shield", "Genuine timepieces", "Casio, Titan, Orient and more"],
-      ["pin", "Nairobi showroom", "Our Mall, Magadi Road"],
-      ["watch", "Battery replacement", "Care for your timepiece"],
+      ["watch", "10+ Years · Trusted in Kenya", "Authentic Horology Since 2017"],
+      ["shield", "100% Genuine · Direct Brand Import", "Never Replicas • Original Serials"],
+      ["star", "4.7 / 5.0 · 195+ Verified Reviews", "Kenya’s Top-Rated Watch Dealer"],
+      ["truck", "Free Kenya Delivery · Same-Day Nairobi Delivery", "Fargo/Wells Fargo Countrywide"],
     ].map(([symbol, title, detail]) => `<div class="promise"><span>${icon(symbol)}</span><div><strong>${title}</strong><p>${detail}</p></div></div>`).join("")}
     </div></section>
     ${rail({ id: "collections", title: "Explore our collections", description: "From everyday classics to distinctive dress watches.", content: collections.map(collectionCard).join(""), label: "collections", auto: true })}
