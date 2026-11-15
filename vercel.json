@@ -1,0 +1,1 @@
+{"rewrites":[{"source":"/products/:path*","destination":"/index.html"},{"source":"/collections/:path*","destination":"/index.html"}]}
