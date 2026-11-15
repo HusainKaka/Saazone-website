@@ -16,6 +16,8 @@
       const session = new AbortController();
       const portrait = matchMedia("(orientation: portrait)");
       const mobile = matchMedia("(pointer: coarse), (max-width: 767px)").matches;
+      const desktopDetail = !mobile && matchMedia("(min-width:1024px) and (orientation:landscape) and (pointer:fine)").matches;
+      const assemblyEnd = 0.78;
       const video = document.createElement("video");
       video.className = "assembly-video";
       video.muted = true;
@@ -23,6 +25,14 @@
       video.preload = "auto";
       video.setAttribute("aria-hidden", "true");
       poster.closest("picture").after(video);
+      const assembled = desktopDetail ? new Image() : null;
+      if (assembled) {
+        assembled.className = "assembly-final";
+        assembled.alt = "";
+        assembled.hidden = true;
+        assembled.src = `${videoBase}/hero-desktop-assembled.webp`;
+        video.after(assembled);
+      }
 
       const playhead = { progress: 0 };
       const frameRate = 24;
@@ -36,7 +46,8 @@
         seekRequest = requestAnimationFrame(() => {
           seekRequest = 0;
           const lastFrame = Math.max(0, Math.ceil(video.duration * frameRate - 0.01) - 1);
-          const time = Math.round(playhead.progress * lastFrame) / frameRate;
+          const progress = desktopDetail ? Math.min(1, playhead.progress / assemblyEnd) : playhead.progress;
+          const time = Math.round(progress * lastFrame) / frameRate;
           if (refreshFrame || Math.abs(video.currentTime - time) >= 0.5 / frameRate) {
             refreshFrame = false;
             video.currentTime = time;
@@ -53,6 +64,7 @@
         video.removeAttribute("src");
         video.load();
         video.remove();
+        assembled?.remove();
       }
 
       video.addEventListener("seeked", () => {
@@ -104,6 +116,12 @@
         scrub: mobile ? 0.2 : 0.28,
         pin: true,
         pinSpacing: true,
+        onUpdate: self => {
+          if (assembled) assembled.hidden = self.progress < assemblyEnd;
+        },
+        onRefresh: self => {
+          if (assembled) assembled.hidden = self.progress < assemblyEnd;
+        },
         refreshPriority: 1,
         start: () => `top ${document.querySelector(".header").offsetHeight}px`,
         end: () => `+=${Math.round(hero.offsetHeight * (portrait.matches ? 3 : 3.2))}`,
@@ -111,7 +129,6 @@
       ScrollTrigger.sort();
       ScrollTrigger.refresh();
 
-      const desktopDetail = !mobile && matchMedia("(min-width:1024px) and (orientation:landscape) and (pointer:fine)").matches;
       const clip = desktopDetail ? "desktop-detail" : mobile ? "900" : "1080";
       video.src = `${videoBase}/hero-${clip}.mp4`;
       return cleanup;
