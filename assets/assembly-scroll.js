@@ -1,7 +1,7 @@
 (() => {
   const hero = document.querySelector(".assembly-hero");
   const { gsap, ScrollTrigger } = window;
-  if (!hero || !gsap || !ScrollTrigger || !window.createImageBitmap || navigator.connection?.saveData) return;
+  if (!hero || !gsap || !ScrollTrigger || navigator.connection?.saveData) return;
 
   const canvas = document.querySelector("#assembly-canvas");
   const poster = document.querySelector("#assembly-poster");
@@ -27,7 +27,9 @@
       let count = 0;
       let shown = -1;
       let direction = 1;
-      const sheets = [];
+      let video;
+      let requestedTime = 0;
+      let readyToSeek;
       const touch = conditions.touch;
       const playhead = { progress: 0 };
       let scrub;
@@ -97,15 +99,23 @@
         try {
           let sequence;
           if (touch) {
-            sequence = { count: 96, width: 360, height: 640 };
-            await Promise.all(Array.from({ length: 6 }, async (_, index) => {
-              const response = await fetch(`${base}/mobile-${index}.webp`, { signal: session.signal });
-              if (!response.ok) throw new Error("Watch sheet unavailable");
-              const bitmap = await createImageBitmap(await response.blob());
-              if (session.signal.aborted) bitmap.close();
-              else sheets[index] = bitmap;
-            }));
+            video = document.createElement("video");
+            video.className = "assembly-touch-video";
+            video.muted = true;
+            video.playsInline = true;
+            video.preload = "auto";
+            video.hidden = true;
+            video.setAttribute("aria-hidden", "true");
+            poster.after(video);
+            await new Promise((resolve, reject) => {
+              video.addEventListener("loadeddata", resolve, { once: true, signal: session.signal });
+              video.addEventListener("error", reject, { once: true, signal: session.signal });
+              session.signal.addEventListener("abort", reject, { once: true });
+              video.src = `${base}/touch.mp4`;
+            });
+            sequence = { count: 190, width: 720, height: 1280 };
           } else {
+            if (!window.createImageBitmap) return;
             const response = await fetch(`${base}/manifest.json`, { signal: session.signal });
             if (!response.ok) return;
             sequence = await response.json();
@@ -118,30 +128,28 @@
           count = sequence.count;
           // Avoid inserting a pin above someone who has already started browsing.
           if (touch && (window.scrollY > 8 || location.hash)) {
-            sheets.forEach(bitmap => bitmap.close());
-            sheets.length = 0;
+            video.remove();
+            video.removeAttribute("src");
+            video.load();
             return;
           }
           draw(0);
           hint.hidden = false;
           if (touch) {
+            readyToSeek = () => {
+              if (video.seeking || Math.abs(video.currentTime - requestedTime) < 1 / 48) return;
+              video.currentTime = requestedTime;
+            };
+            video.addEventListener("seeked", () => {
+              video.hidden = false;
+              poster.classList.add("assembly-poster-covered");
+              readyToSeek();
+            }, { signal: session.signal });
             scrub = gsap.to(playhead, {
               progress: 1, duration: 1, ease: "none", paused: true,
               onUpdate: () => {
-                const index = Math.round(playhead.progress * (count - 1));
-                if (index === shown) return;
-                if (index === 0) {
-                  draw(0);
-                  return;
-                }
-                const cell = index % 16;
-                context.drawImage(sheets[Math.floor(index / 16)],
-                  (cell % 4) * canvas.width, Math.floor(cell / 4) * canvas.height,
-                  canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-                shown = index;
-                canvas.dataset.frame = index;
-                canvas.hidden = false;
-                poster.classList.add("assembly-poster-covered");
+                requestedTime = Math.round(playhead.progress * (count - 1)) / 24;
+                readyToSeek();
               },
             });
           }
@@ -160,8 +168,7 @@
           if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
         } catch {
           session.abort();
-          sheets.forEach(bitmap => bitmap.close());
-          sheets.length = 0;
+          video?.remove();
         }
       })();
 
@@ -171,7 +178,11 @@
         for (const frame of cache.values()) frame.close();
         trigger?.kill();
         scrub?.kill();
-        sheets.forEach(bitmap => bitmap.close());
+        if (video) {
+          video.removeAttribute("src");
+          video.load();
+          video.remove();
+        }
         hint.hidden = true;
         canvas.hidden = true;
         delete canvas.dataset.frame;
