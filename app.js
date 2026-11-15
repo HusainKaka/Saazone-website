@@ -54,7 +54,6 @@ const bag = new Map(Object.entries(readStorage("saazone-bag", {}) || {}).filter(
 const productUrl = product => `/products/${product.id}`;
 const collectionUrl = collection => `/collections/${collection.id}`;
 const price = amount => `KSh ${money.format(amount)}`;
-const renderLabel = '<span class="render-label">Illustrative render</span>';
 const art = "/assets/editorial/";
 const productImage = (product, eager = false, decorative = false) =>
   `<img src="${art}products/${product.id}.webp" alt="${decorative ? "" : safe(product.name)}" width="720" height="720" loading="eager" ${eager ? 'fetchpriority="high"' : ''} decoding="async">`;
@@ -74,7 +73,7 @@ function productCard(product, revealPhoto = false) {
     <a class="product-photo" href="${productUrl(product)}"${revealPhoto ? " data-reveal" : ""}>${productImage(product)}</a>
     <div class="product-info"><p class="eyebrow">${safe(product.brand)}</p>
       <h3><a href="${productUrl(product)}">${safe(product.name)}</a></h3>
-      ${renderLabel}<p class="price">${price(product.price)}</p>
+      <p class="price">${price(product.price)}</p>
       <div class="product-actions"><button class="button" data-add="${product.id}">Add to bag</button>
       <button type="button" class="icon-button favorite" data-favorite="${product.id}" aria-label="Save ${safe(product.name)}" aria-pressed="${favorites.has(product.id)}">${icon("heart")}</button></div>
     </div></article>`;
@@ -83,7 +82,7 @@ function productCard(product, revealPhoto = false) {
 function collectionCard(collection) {
   return `<a class="collection-card" href="${collectionUrl(collection)}">
     <div class="collection-image">${collectionImage(collection)}</div>
-    <div class="collection-caption"><h3>${collection.name}</h3><span>Discover ${arrow}</span>${renderLabel}</div></a>`;
+    <div class="collection-caption"><h3>${collection.name}</h3><span>Discover ${arrow}</span></div></a>`;
 }
 
 function controls(label, auto = false) {
@@ -129,7 +128,7 @@ function home() {
     </div></section>
     ${rail({ id: "collections", title: "Explore our collections", description: "From everyday classics to distinctive dress watches.", content: collections.map(collectionCard).join(""), label: "collections", auto: true })}
     <section class="story" id="our-story">
-      <figure class="story-photo" data-reveal>${editorial("story-palette", "Close-up of a blue-dial Orient watch")}${renderLabel}</figure>
+      <figure class="story-photo" data-reveal>${editorial("story-palette", "Close-up of a blue-dial Orient watch")}</figure>
       <div class="story-copy" data-reveal><p class="eyebrow">OUR STORY</p><h2>It started with a <em>birthday watch.</em></h2>
       <p>SaaZone founder Alanwar was six when his parents gave him his first watch. Years later, a square-dial Casio Edifice rekindled that feeling and inspired him to bring genuine timepieces to Kenya.</p>
       ${links("Discover our story", shop + "/pages/about-us", "button primary")}</div>
@@ -138,7 +137,7 @@ function home() {
     ${links("Shop the collections", "#collections")}</div><div class="product-grid">${featured.map(product => productCard(product, true)).join("")}</div></div></section>
     <section class="movement"><div class="shell movement-grid"><div data-reveal><p class="eyebrow">A CLOSER LOOK</p><h2>The details make the <em>difference.</em></h2>
     <p>Get to know the dial, the case and the way a bracelet sits on your wrist. Try a timepiece in person at our Nairobi showroom.</p>
-    ${links("Visit the showroom", maps, "button")}</div><figure data-reveal>${editorial("movement-dress", "Exploded view of a gold-tone dress watch with a cream dial, leather strap and exposed movement")}<figcaption>Illustration of a mechanical watch</figcaption></figure></div></section>
+    ${links("Visit the showroom", maps, "button")}</div><figure data-reveal>${editorial("movement-dress", "Exploded view of a gold-tone dress watch with a cream dial, leather strap and exposed movement")}</figure></div></section>
     <section class="band why"><div class="shell"><div class="section-head" data-reveal><div><h2>Why SaaZone</h2></div></div>
       <div class="why-grid"><article><h3>Try it on in Nairobi</h3><p>Compare sizes, dials and straps at Our Mall on Magadi Road.</p></article>
       <article><h3>Find a watch that suits you</h3><p>Ask the SaaZone team about fit, everyday wear or choosing a gift.</p></article>
@@ -150,17 +149,13 @@ function home() {
     </section>
     <section class="band reviews"><div class="shell"><div class="section-head" data-reveal><div><h2>Hear from SaaZone customers</h2></div></div>
     <div class="review-links"><article><h3>Google Maps reviews</h3><p>See what customers say about their visits and purchases.</p>${links("Read on Google Maps", maps)}</article>
-    <article><h3>Customer feedback at SaaZone</h3><p>Browse customer messages shared by the store.</p>${links("Read customer feedback", shop + "/pages/reviews")}</article></div></div></section>
-    <section class="newsletter"><div class="shell newsletter-inner"><div data-reveal><p class="eyebrow">THE SAAZONE NEWSLETTER</p><h2>Stay in time.</h2><p>New arrivals and notes from SaaZone.</p></div>
-      <form id="newsletter"><label for="newsletter-email">Email address</label><div class="email-row"><input id="newsletter-email" type="email" autocomplete="email" placeholder="you@example.com" required><button class="button primary" type="submit">Subscribe ${arrow}</button></div>
-      <label class="consent"><input type="checkbox" required> I agree to receive SaaZone updates.</label><p class="form-note" id="newsletter-feedback" role="status">Preview form. Email addresses are discarded.</p></form>
-    </div></section>`;
+    <article><h3>Customer feedback at SaaZone</h3><p>Browse customer messages shared by the store.</p>${links("Read customer feedback", shop + "/pages/reviews")}</article></div></div></section>`;
 }
 
 function lifestylePanel(person, title, action, url) {
   const alt = person === "him" ? "Man wearing a steel wristwatch" : "Woman wearing a gold-toned wristwatch";
   return `<a class="life-panel" href="${url}"><div class="life-art" data-reveal>${editorial("life-" + person, alt, { responsive: true, version: "-palette" })}</div>
-    <div class="life-caption"><div><strong>${title}</strong><span>${action} ${arrow}</span></div>${renderLabel}</div></a>`;
+    <div class="life-caption"><div><strong>${title}</strong><span>${action} ${arrow}</span></div></div></a>`;
 }
 
 function collectionPage(collection) {
@@ -169,14 +164,14 @@ function collectionPage(collection) {
   const matches = products.filter(product => product.collections.includes(collection.id));
   const featured = [...matches].sort((a, b) => Number(b.id === cover.id) - Number(a.id === cover.id)).slice(0, 8);
   const person = collection.id === men ? "him" : collection.id === ladies ? "her" : "";
-  main.innerHTML = `<section class="category-hero">
+  main.innerHTML = `<section class="category-hero${person ? " category-hero-portrait" : ""}">
+    <figure class="category-art">${person ? editorial("life-" + person, `Editorial wristwatch portrait for ${collection.name}`, { responsive: true, priority: true, version: "-palette" }) : collectionImage(collection, true)}</figure>
     <div class="shell category-layout"><div><nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span> / </span><a href="/#collections">Collections</a></nav>
-    <h1>${collection.name}</h1><p>${collection.description}</p>${links(collection.id === "casio-alarm-clocks" ? "Browse alarm clocks" : "Browse watches", "#collection-products", "button primary")}</div>
-    <figure class="category-art" data-hero-reveal>${person ? editorial("life-" + person, `Editorial wristwatch portrait for ${collection.name}`, { responsive: true, priority: true, version: "-palette" }) : collectionImage(collection, true)}${renderLabel}</figure></div>
+    <h1>${collection.name}</h1><p>${collection.description}</p>${links(collection.id === "casio-alarm-clocks" ? "Browse alarm clocks" : "Browse watches", "#collection-products", "button primary")}</div></div>
     </section>
     ${rail({ id: "related", title: "Explore other collections", content: collections.filter(other => other !== collection).map(collectionCard).join(""), label: "related collections" })}
     ${rail({ id: "collection-featured", title: "Featured in this collection", content: featured.map(product => productCard(product)).join(""), label: "featured products", inverse: true })}
-    <section class="band" id="collection-products"><div class="shell"><div class="section-head" data-reveal><div><h2>${collection.name}</h2><p class="section-description">${matches.length} ${matches.length === 1 ? "timepiece" : "timepieces"} in this preview</p></div></div>
+    <section class="band" id="collection-products"><div class="shell"><div class="section-head" data-reveal><div><h2>${collection.name}</h2><p class="section-description">${matches.length} ${matches.length === 1 ? "timepiece" : "timepieces"}</p></div></div>
     <div class="product-grid">${matches.map(product => productCard(product, true)).join("")}</div>
     </div></section>`;
 }
@@ -191,7 +186,7 @@ function detailPage(product) {
     <div class="shell"><nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span> / </span><a href="${collectionUrl(collection)}">${collection.name}</a></nav>
     <div class="detail-grid"><figure class="detail-art ${clock ? "detail-clock" : ""}" data-hero-reveal>
       <img class="detail-prop" src="${art}${clock ? "detail-clock" : "detail-ring"}.webp" alt="" width="780" height="780" decoding="async">
-      ${productImage(product, true)}<figcaption>${renderLabel}</figcaption>
+      ${productImage(product, true)}
     </figure>
     <div class="detail-copy"><div data-hero-reveal><p class="eyebrow">${safe(product.brand)} · ${safe(product.model)}</p><h1>${safe(product.title)}</h1>
       <p class="detail-price">${price(product.price)}</p><p>${safe(product.description)}</p></div>
@@ -209,7 +204,7 @@ function footer() {
     <div data-reveal><h2>Shop</h2><a href="/#collections">All collections</a><a href="/collections/entire-men-collection">Men's watches</a><a href="/collections/entire-ladies-collection">Ladies' watches</a><a href="/#featured">Featured watches</a></div>
     <div data-reveal><h2>About</h2><a href="/#our-story">Our story</a><a href="${shop}/pages/reviews">Customer reviews</a><a href="${shop}/pages/contact-us">Contact and location</a><a href="${shop}/policies/refund-policy">Returns policy</a></div>
     <div data-reveal><h2>Visit SaaZone</h2><p>Our Mall, Magadi Road<br>Nairobi, Kenya</p><a href="tel:+254706402296">+254 706 402 296</a><a href="${maps}">Get directions ${arrow}</a></div></div>
-    <div class="shell footer-bottom"><span>© SaaZone Kenya</span><span>Storefront preview · KES</span></div>`;
+    <div class="shell footer-bottom"><span>© SaaZone Kenya</span><span class="footer-credit">Powered by <a href="https://husainitechsolutions.com/">Husaini Tech Solutions</a></span></div>`;
 }
 
 const [, page, slug] = location.pathname.split("/");
@@ -273,14 +268,14 @@ const menuLinks = [
 
 function miniProduct(product, after = "") {
   return `<li class="mini-product"><a href="${productUrl(product)}">${productImage(product, false, true)}
-    <span>${safe(product.name)}<small>${price(product.price)}</small>${renderLabel}</span></a>${after}</li>`;
+    <span>${safe(product.name)}<small>${price(product.price)}</small></span></a>${after}</li>`;
 }
 function searchResults(query) {
   const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const matches = terms.length ? products.filter(product => terms.every(term =>
     `${product.name} ${product.model} ${product.brand}`.toLowerCase().includes(term)
   )) : [];
-  return `<p class="panel-note" role="status">${terms.length ? `${matches.length} ${matches.length === 1 ? "result" : "results"}` : "Search the preview by brand or model."}</p>
+  return `<p class="panel-note" role="status">${terms.length ? `${matches.length} ${matches.length === 1 ? "result" : "results"}` : "Search by brand or model."}</p>
     <ul class="mini-list">${matches.map(product => miniProduct(product)).join("")}</ul>`;
 }
 function renderPanel() {
@@ -298,7 +293,7 @@ function renderPanel() {
     const total = [...bag].reduce((sum, [id, quantity]) => sum + byId.get(id).price * quantity, 0);
     drawerBody.innerHTML = bag.size ? `<ul class="mini-list">${[...bag].map(([id, quantity]) => miniProduct(byId.get(id),
       `<div class="line-actions"><label>Qty <input data-bag-quantity="${id}" aria-label="Quantity for ${safe(byId.get(id).name)}" type="number" min="1" max="99" value="${quantity}"></label><button class="small-action" data-remove="${id}" aria-label="Remove ${safe(byId.get(id).name)} from bag">Remove</button></div>`)).join("")}</ul>
-      <p class="bag-total" aria-live="polite"><strong>Subtotal</strong><strong>${price(total)}</strong></p><p class="panel-note">This preview bag is stored on this device.</p><button class="button" type="button" data-close>Continue shopping</button>`
+      <p class="bag-total" aria-live="polite"><strong>Subtotal</strong><strong>${price(total)}</strong></p><button class="button" type="button" data-close>Continue shopping</button>`
       : '<p class="panel-note">Your shopping bag is empty.</p><a href="/#collections" class="button">Browse collections</a>';
   }
 }
@@ -374,11 +369,6 @@ drawer.addEventListener("change", event => {
   updateBag();
   const total = [...bag].reduce((sum, [product, quantity]) => sum + byId.get(product).price * quantity, 0);
   drawer.querySelector(".bag-total strong:last-child").textContent = price(total);
-});
-document.querySelector("#newsletter")?.addEventListener("submit", event => {
-  event.preventDefault();
-  event.currentTarget.reset();
-  document.querySelector("#newsletter-feedback").textContent = "Preview complete. The email address was discarded.";
 });
 mobile.addEventListener("change", event => {
   if (!event.matches && drawer.open && activePanel === "menu") drawer.close();
