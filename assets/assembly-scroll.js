@@ -14,6 +14,7 @@
     media.add({
       motion: "(prefers-reduced-motion: no-preference) and (min-height: 320px)",
       portrait: "(orientation: portrait)",
+      touch: "(pointer: coarse)",
     }, ({ conditions }) => {
       if (!conditions.motion) return;
       const base = "/assets/assembly/brown-portrait";
@@ -26,6 +27,10 @@
       let count = 0;
       let shown = -1;
       let direction = 1;
+      const sheets = [];
+      const touch = conditions.touch;
+      const playhead = { progress: 0 };
+      let scrub;
 
       function draw(index) {
         if (shown === index || (index !== 0 && !cache.has(index))) return;
@@ -90,29 +95,74 @@
 
       (async () => {
         try {
-          const response = await fetch(`${base}/manifest.json`, { signal: session.signal });
-          if (!response.ok) return;
-          const sequence = await response.json();
+          let sequence;
+          if (touch) {
+            sequence = { count: 96, width: 360, height: 640 };
+            await Promise.all(Array.from({ length: 6 }, async (_, index) => {
+              const response = await fetch(`${base}/mobile-${index}.webp`, { signal: session.signal });
+              if (!response.ok) throw new Error("Watch sheet unavailable");
+              const bitmap = await createImageBitmap(await response.blob());
+              if (session.signal.aborted) bitmap.close();
+              else sheets[index] = bitmap;
+            }));
+          } else {
+            const response = await fetch(`${base}/manifest.json`, { signal: session.signal });
+            if (!response.ok) return;
+            sequence = await response.json();
+          }
           if (![sequence.count, sequence.width, sequence.height].every(value => Number.isInteger(value) && value > 1) || session.signal.aborted) return;
           await poster.decode();
           if (session.signal.aborted) return;
           canvas.width = sequence.width;
           canvas.height = sequence.height;
           count = sequence.count;
+          // Avoid inserting a pin above someone who has already started browsing.
+          if (touch && (window.scrollY > 8 || location.hash)) {
+            sheets.forEach(bitmap => bitmap.close());
+            sheets.length = 0;
+            return;
+          }
           draw(0);
           hint.hidden = false;
+          if (touch) {
+            scrub = gsap.to(playhead, {
+              progress: 1, duration: 1, ease: "none", paused: true,
+              onUpdate: () => {
+                const index = Math.round(playhead.progress * (count - 1));
+                if (index === shown) return;
+                if (index === 0) {
+                  draw(0);
+                  return;
+                }
+                const cell = index % 16;
+                context.drawImage(sheets[Math.floor(index / 16)],
+                  (cell % 4) * canvas.width, Math.floor(cell / 4) * canvas.height,
+                  canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+                shown = index;
+                canvas.dataset.frame = index;
+                canvas.hidden = false;
+                poster.classList.add("assembly-poster-covered");
+              },
+            });
+          }
           trigger = ScrollTrigger.create({
             id: "watch-assembly", trigger: hero, pin: true, pinSpacing: true,
+            ...(touch ? { animation: scrub, scrub: 0.18 } : {
+              onUpdate: self => seek(self.progress),
+              onRefresh: self => seek(self.progress),
+            }),
             refreshPriority: 1,
             start: () => `top ${document.querySelector(".header").offsetHeight}px`,
             end: () => `+=${Math.round(innerHeight * (conditions.portrait ? 1.8 : 2.3))}`,
-            onUpdate: self => seek(self.progress),
-            onRefresh: self => seek(self.progress),
           });
           ScrollTrigger.sort();
           ScrollTrigger.refresh();
           if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
-        } catch { /* The still and the shopping link remain available. */ }
+        } catch {
+          session.abort();
+          sheets.forEach(bitmap => bitmap.close());
+          sheets.length = 0;
+        }
       })();
 
       return () => {
@@ -120,6 +170,8 @@
         for (const controller of pending.values()) controller.abort();
         for (const frame of cache.values()) frame.close();
         trigger?.kill();
+        scrub?.kill();
+        sheets.forEach(bitmap => bitmap.close());
         hint.hidden = true;
         canvas.hidden = true;
         delete canvas.dataset.frame;
