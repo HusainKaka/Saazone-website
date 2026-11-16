@@ -117,7 +117,7 @@ function hero() {
         ${links("Explore collections", "#collections", "button primary")}
       </div>
     </div></div>
-    <span class="assembly-scroll-cue" aria-hidden="true" hidden>${icon("scrollMouse")}</span>
+    <span class="assembly-scroll-cue" aria-hidden="true">${icon("scrollMouse")}</span>
   </section>`;
 }
 

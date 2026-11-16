@@ -1,11 +1,6 @@
 (() => {
   const hero = document.querySelector(".assembly-hero");
   if (!hero) return;
-  const cue = hero.querySelector(".assembly-scroll-cue");
-  if (window.scrollY === 0) {
-    cue.hidden = false;
-    window.addEventListener("scroll", () => { cue.hidden = true; }, { once: true, passive: true });
-  }
   const { gsap, ScrollTrigger } = window;
   if (!gsap || !ScrollTrigger || navigator.connection?.saveData) return;
 
