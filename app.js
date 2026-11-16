@@ -160,7 +160,7 @@ function home() {
 
 function lifestylePanel(person, title, action, url) {
   const alt = person === "him" ? "Man wearing a steel wristwatch" : "Woman wearing a gold-toned wristwatch";
-  return `<a class="life-panel" href="${url}"><div class="life-art" data-reveal>${editorial("life-" + person, alt, { responsive: true, version: "-palette" })}</div>
+  return `<a class="life-panel" href="${url}"><div class="life-art life-art-${person}" data-reveal>${editorial("life-" + person, alt, { responsive: true, version: "-palette" })}</div>
     <div class="life-caption"><div><strong>${title}</strong><span>${action} ${arrow}</span></div></div></a>`;
 }
 
@@ -170,7 +170,7 @@ function collectionPage(collection) {
   const matches = products.filter(product => product.collections.includes(collection.id));
   const featured = [...matches].sort((a, b) => Number(b.id === cover.id) - Number(a.id === cover.id)).slice(0, 8);
   const person = collection.id === men ? "him" : collection.id === ladies ? "her" : "";
-  main.innerHTML = `<section class="category-hero${person ? " category-hero-portrait" : ""}">
+  main.innerHTML = `<section class="category-hero${person ? " category-hero-portrait category-hero-" + person : ""}">
     <figure class="category-art">${person ? editorial("life-" + person, `Editorial wristwatch portrait for ${collection.name}`, { responsive: true, priority: true, version: "-palette" }) : collectionImage(collection, true)}</figure>
     <div class="shell category-layout"><div><nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span> / </span><a href="/#collections">Collections</a></nav>
     <h1>${collection.name}</h1><p>${collection.description}</p>${links(collection.id === "casio-alarm-clocks" ? "Browse alarm clocks" : "Browse watches", "#collection-products", "button primary")}</div></div>

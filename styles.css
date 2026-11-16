@@ -90,6 +90,7 @@ em {font-weight:400}
 .rail {--columns:4;--gap:16px; display:grid; grid-auto-flow:column;grid-auto-columns:calc((100% - (var(--columns) - 1) * var(--gap))/var(--columns));gap:var(--gap);overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory}
 .rail::-webkit-scrollbar {display:none}
 .rail > * {min-width:0;scroll-snap-align:start}
+#collections .rail {overflow-y:hidden}
 .rail :focus-visible {outline-offset:-4px}
 .collection-card {display:block;background:#e0edf6;border:1px solid #c5d9e9; overflow:hidden}
 .collection-image {display:grid;place-items:center;height:auto;aspect-ratio:1.17;background:radial-gradient(ellipse at 52% 62%,#f2f8fd80 0 33%,transparent 34% 40%,#ffffff60 41% 42%,transparent 43% 54%,#eff8fc90 55% 57%,transparent 58%),linear-gradient(140deg,#d4e5f4,#a6c4dc 65%,#edf6fb 65.5%)}
@@ -512,4 +513,28 @@ body:has(.assembly-hero) .desktop-nav a[aria-current="page"]{text-decoration-col
   .category-layout {min-height:0;margin-top:-14px}
   .category-layout > div:first-child {width:100%;padding-block:0 34px}
   .category-layout h1 {font-size:clamp(2.55rem,10vw,4.25rem)}
+}
+/* Crop the existing editorial portraits around each watch. */
+.life-art img { transform:scale(1.4); }
+.life-art-him img { object-position:70% 100%;transform-origin:57% 70%; }
+.life-art-her img { object-position:20% 100%;transform-origin:42% 70%; }
+.category-hero-portrait .category-art {overflow:hidden}
+.category-hero-portrait .category-art img {transform:scale(1.35)}
+.category-hero-him .category-art img {object-position:70% 100%;transform-origin:57% 70%}
+.category-hero-her .category-art img {object-position:20% 100%;transform-origin:42% 70%}
+@media (max-width:767px){
+ .life-art-him img,.category-hero-him .category-art img {object-position:46% 100%;transform-origin:48% 72%}
+ .life-art-her img,.category-hero-her .category-art img {object-position:38% 100%;transform-origin:43% 75%}
+}
+.life-art img {transform:translateY(-18%) scale(1.4)}
+.category-hero-portrait .category-art img {transform:translateY(-16%) scale(1.35)}
+@media (max-width:767px){
+ .life-art-him img,.category-hero-him .category-art img {transform:translateY(-12%) scale(1.4)}
+ .life-art-her img,.category-hero-her .category-art img {transform:translateY(-20%) scale(1.4)}
+}
+.life-art img {transform:translateY(-10%) scale(1.65)}
+.category-hero-portrait .category-art img {transform:translateY(-9%) scale(1.6)}
+@media (max-width:767px){
+ .life-art-him img,.category-hero-him .category-art img {transform:translateY(-8%) scale(1.65)}
+ .life-art-her img,.category-hero-her .category-art img {transform:translateY(-10%) scale(1.65)}
 }

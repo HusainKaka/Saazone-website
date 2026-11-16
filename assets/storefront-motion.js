@@ -2,6 +2,7 @@
   const { gsap, ScrollTrigger, SplitText, Lenis } = window;
   const main = document.querySelector("main");
   if (!gsap || !ScrollTrigger || !main) return;
+  const hasAssemblyHero = Boolean(main.querySelector(".assembly-hero"));
   gsap.registerPlugin(ScrollTrigger);
   if (SplitText) gsap.registerPlugin(SplitText);
 
@@ -17,15 +18,12 @@
     }, ({ conditions }) => {
       if (conditions.reduced) return;
       let lenis;
-      if (Lenis && conditions.desktop && conditions.precisePointer) {
+      // Keep one scroll driver before and after the homepage hero unpins.
+      if (Lenis && !hasAssemblyHero && conditions.desktop && conditions.precisePointer) {
         lenis = new Lenis({
           autoRaf: true, lerp: .165, wheelMultiplier: 1.25,
-          prevent: node => {
-            const heroMotion = ScrollTrigger.getById("watch-assembly");
-            return document.body.classList.contains("dialog-open")
-              || Boolean(node.closest?.("dialog, .rail"))
-              || Boolean(heroMotion && window.scrollY < heroMotion.end);
-          },
+          prevent: node => document.body.classList.contains("dialog-open")
+            || Boolean(node.closest?.("dialog, .rail")),
         });
         lenis.on("scroll", ScrollTrigger.update);
       }
