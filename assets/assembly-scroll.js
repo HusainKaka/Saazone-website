@@ -18,7 +18,7 @@
       const portrait = matchMedia("(orientation: portrait)");
       const mobile = matchMedia("(pointer: coarse), (max-width: 767px)").matches;
       const desktopDetail = !mobile && matchMedia("(min-width:1024px) and (orientation:landscape) and (pointer:fine)").matches;
-      const assemblyEnd = 0.78;
+      const assemblyEnd = desktopDetail ? 0.78 : 0.9;
       const desktopFraming = matchMedia("(min-width:1024px) and (orientation:landscape)");
       const stage = hero.querySelector(".assembly-media");
       const easeReframe = gsap.parseEase("power2.inOut");
@@ -30,14 +30,12 @@
       video.preload = "auto";
       video.setAttribute("aria-hidden", "true");
       poster.closest("picture").after(video);
-      const assembled = desktopDetail ? new Image() : null;
-      if (assembled) {
-        assembled.className = "assembly-final";
-        assembled.alt = "";
-        assembled.hidden = true;
-        assembled.src = `${videoBase}/hero-desktop-assembled.webp`;
-        video.after(assembled);
-      }
+      const assembled = new Image();
+      assembled.className = "assembly-final";
+      assembled.alt = "";
+      assembled.hidden = true;
+      assembled.src = `${videoBase}/${desktopDetail ? "hero-desktop-assembled.webp?v=dial" : "hero-assembled-stamped.webp"}`;
+      video.after(assembled);
 
       const playhead = { progress: 0 };
       const frameRate = 24;
@@ -51,7 +49,7 @@
         seekRequest = requestAnimationFrame(() => {
           seekRequest = 0;
           const lastFrame = Math.max(0, Math.ceil(video.duration * frameRate - 0.01) - 1);
-          const progress = desktopDetail ? Math.min(1, playhead.progress / assemblyEnd) : playhead.progress;
+          const progress = Math.min(1, playhead.progress / assemblyEnd);
           const time = Math.round(progress * lastFrame) / frameRate;
           if (refreshFrame || Math.abs(video.currentTime - time) >= 0.5 / frameRate) {
             refreshFrame = false;
@@ -70,7 +68,7 @@
         video.removeAttribute("src");
         video.load();
         video.remove();
-        assembled?.remove();
+        assembled.remove();
       }
 
       video.addEventListener("seeked", () => {
@@ -106,6 +104,15 @@
       for (const event of ["loadedmetadata", "loadeddata", "canplay"]) {
         video.addEventListener(event, scheduleSeek, { signal: session.signal });
       }
+      function updateFinishedFrame() {
+        if (!trigger) return;
+        const finished = trigger.progress >= assemblyEnd
+          && (playhead.progress >= assemblyEnd || trigger.progress >= 0.98);
+        const hide = !finished || !assembled.naturalWidth;
+        if (assembled.hidden !== hide) assembled.hidden = hide;
+      }
+      assembled.addEventListener("load", updateFinishedFrame, { signal: session.signal });
+
       // Reserve the scroll distance before loading media so browser scroll restoration
       // and early swipes both land on the same timeline.
       scrub = gsap.to(playhead, {
@@ -118,6 +125,7 @@
             const progress = gsap.utils.clamp(0, 1, (playhead.progress - .25) / (assemblyEnd - .25));
             stage.style.setProperty("--assembly-scale", 1 + (finalScale - 1) * easeReframe(progress));
           }
+          updateFinishedFrame();
           scheduleSeek();
         },
       });
@@ -128,18 +136,20 @@
         scrub: mobile ? 0.2 : 0.28,
         pin: true,
         pinSpacing: true,
-        onUpdate: self => {
-          if (assembled) assembled.hidden = self.progress < assemblyEnd;
-        },
-        onRefresh: self => {
-          if (assembled) assembled.hidden = self.progress < assemblyEnd;
+        onUpdate: updateFinishedFrame,
+        onRefresh: () => {
+          updateFinishedFrame();
           if (desktopDetail && stage.offsetWidth) {
             finalScale = Math.min(1, hero.clientHeight * .755 / stage.offsetWidth);
           }
         },
         refreshPriority: 1,
         start: () => `top ${document.querySelector(".header").offsetHeight}px`,
-        end: () => `+=${Math.round(hero.offsetHeight * (portrait.matches ? 3 : 3.2))}`,
+        end: () => {
+          const distance = hero.offsetHeight * (portrait.matches ? 3 : 3.2);
+          // Preserve the assembly distance and reserve the final portion for the stamped dial.
+          return `+=${Math.round(desktopDetail ? distance : distance / assemblyEnd)}`;
+        },
       });
       ScrollTrigger.sort();
       ScrollTrigger.refresh();
