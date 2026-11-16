@@ -355,9 +355,21 @@ body:has(.assembly-hero) .desktop-nav a[aria-current="page"]{text-decoration-col
 .assembly-video.assembly-video-ready{opacity:1}
 .assembly-final{position:absolute;inset:0;pointer-events:none}
 .assembly-final[hidden]{display:none}
+.assembly-scroll-cue{
+  position:absolute;z-index:2;left:50%;bottom:clamp(12px,3svh,26px);transform:translateX(-50%);
+  display:grid;place-items:center;width:38px;height:38px;border:1px solid #f9f4ef80;
+  border-radius:50%;background:#24150fa6;color:var(--cream);pointer-events:none;
+}
+.assembly-scroll-cue[hidden]{display:none}
 @media (min-width:1024px) and (orientation:landscape){
   .assembly-hero{background:#382216}
-  .assembly-media{left:31%;right:4%;width:65%;mask-image:linear-gradient(90deg,transparent,#000 15%,#000 90%,transparent)}
+  .assembly-media{
+    inset:48% auto auto 63.5%;
+    width:65%;height:auto;aspect-ratio:9/16;
+    transform-origin:50% 48%;
+    transform:translate(-50%,-48%) scale(var(--assembly-scale,1));
+    mask-image:linear-gradient(90deg,transparent,#000 15%,#000 90%,transparent);
+  }
   .assembly-hero .hero-shell{align-items:center}
   .assembly-hero .hero-copy{width:27%;max-width:22rem;color:var(--cream)}
 }

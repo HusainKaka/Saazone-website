@@ -52,15 +52,39 @@
       };
       function enter(node, index, intro = false) {
         if (node.contains(document.activeElement)) return;
-        const tween = gsap.fromTo(node, {
-          opacity: intro ? .65 : .28,
-          y: intro ? 12 : conditions.phone ? 22 : 34,
-        }, {
-          opacity: 1, y: 0, duration: intro ? .4 : conditions.phone ? .68 : .82,
-          delay: Math.min(index, 3) * .075,
-          ease: "power3.out", clearProps: "opacity,transform", overwrite: "auto",
+        const art = !intro && node.matches("figure, .product-photo, .life-art");
+        const copy = !intro && node.matches(".section-head");
+        const text = !intro && (copy || node.parentElement.matches(".section-head") || node.matches(".story-copy, .movement-grid > div"))
+          ? (copy ? node.firstElementChild : node)?.querySelectorAll(":scope > :is(h2, p)")
+          : null;
+        const delay = Math.min(index, 3) * .055;
+        const done = {
+          delay,
+          overwrite: "auto",
           onComplete: () => running.delete(node),
-        });
+        };
+        // Editorial images reveal upward. Copy follows with a shorter lift.
+        const tween = art
+          ? gsap.fromTo(node, { clipPath: "inset(86% 0% 0% 0%)" }, {
+              ...done,
+              clipPath: "inset(0% 0% 0% 0%)",
+              duration: conditions.phone ? .5 : .68,
+              ease: "power2.inOut",
+              clearProps: "clipPath",
+            })
+          : gsap.fromTo(text?.length ? text : node, {
+              opacity: intro ? .65 : .46,
+              y: intro ? 12 : 14,
+            }, {
+              ...done,
+              opacity: 1,
+              y: 0,
+              duration: intro ? .4 : .48,
+              delay: delay + (text?.length ? .1 : 0),
+              stagger: text?.length > 1 ? .06 : 0,
+              ease: "power2.out",
+              clearProps: "opacity,transform",
+            });
         running.set(node, tween);
       }
       const revealContext = gsap.context(self => {
@@ -82,7 +106,8 @@
           }
         }
         const candidates = Array.from(document.querySelectorAll("[data-reveal]")).filter(node =>
-          !node.parentElement.closest("[data-reveal]") && node.getBoundingClientRect().top >= innerHeight);
+          !node.closest(".assembly-hero") && !node.parentElement.closest("[data-reveal]")
+            && node.getBoundingClientRect().top >= innerHeight);
         if (!candidates.length) return;
         const triggers = ScrollTrigger.batch(candidates, {
           start: "top 97%",

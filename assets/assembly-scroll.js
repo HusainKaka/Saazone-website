@@ -1,7 +1,13 @@
 (() => {
   const hero = document.querySelector(".assembly-hero");
+  if (!hero) return;
+  const cue = hero.querySelector(".assembly-scroll-cue");
+  if (window.scrollY === 0) {
+    cue.hidden = false;
+    window.addEventListener("scroll", () => { cue.hidden = true; }, { once: true, passive: true });
+  }
   const { gsap, ScrollTrigger } = window;
-  if (!hero || !gsap || !ScrollTrigger || navigator.connection?.saveData) return;
+  if (!gsap || !ScrollTrigger || navigator.connection?.saveData) return;
 
   const poster = hero.querySelector("#assembly-poster");
   const videoBase = "/assets/assembly/brown-portrait";
@@ -18,6 +24,10 @@
       const mobile = matchMedia("(pointer: coarse), (max-width: 767px)").matches;
       const desktopDetail = !mobile && matchMedia("(min-width:1024px) and (orientation:landscape) and (pointer:fine)").matches;
       const assemblyEnd = 0.78;
+      const desktopFraming = matchMedia("(min-width:1024px) and (orientation:landscape)");
+      const stage = hero.querySelector(".assembly-media");
+      const easeReframe = gsap.parseEase("power2.inOut");
+      let finalScale = 1;
       const video = document.createElement("video");
       video.className = "assembly-video";
       video.muted = true;
@@ -61,6 +71,7 @@
         cancelAnimationFrame(seekRequest);
         trigger?.kill();
         scrub?.kill();
+        stage.style.removeProperty("--assembly-scale");
         video.removeAttribute("src");
         video.load();
         video.remove();
@@ -107,7 +118,13 @@
         duration: 1,
         ease: "none",
         paused: true,
-        onUpdate: scheduleSeek,
+        onUpdate: () => {
+          if (desktopDetail && desktopFraming.matches) {
+            const progress = gsap.utils.clamp(0, 1, (playhead.progress - .25) / (assemblyEnd - .25));
+            stage.style.setProperty("--assembly-scale", 1 + (finalScale - 1) * easeReframe(progress));
+          }
+          scheduleSeek();
+        },
       });
       trigger = ScrollTrigger.create({
         id: "watch-assembly",
@@ -121,6 +138,9 @@
         },
         onRefresh: self => {
           if (assembled) assembled.hidden = self.progress < assemblyEnd;
+          if (desktopDetail && stage.offsetWidth) {
+            finalScale = Math.min(1, hero.clientHeight * .755 / stage.offsetWidth);
+          }
         },
         refreshPriority: 1,
         start: () => `top ${document.querySelector(".header").offsetHeight}px`,

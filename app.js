@@ -27,6 +27,7 @@ const icons = {
   pause: '<path d="M9 5v14m6-14v14"/>',
   play: '<path d="m8 5 12 7-12 7V5Z"/>',
   down: '<path d="M12 4v15m-6-6 6 6 6-6"/>',
+  scrollMouse: '<path d="M4 5v12M2 7l2-2 2 2m-4 8 2 2 2-2"/><g transform="rotate(-15 16 12)"><rect x="10" y="2.5" width="11" height="19" rx="5"/><path d="M15.5 7v3"/></g>',
 };
 
 function icon(name) {
@@ -116,6 +117,7 @@ function hero() {
         ${links("Explore collections", "#collections", "button primary")}
       </div>
     </div></div>
+    <span class="assembly-scroll-cue" aria-hidden="true" hidden>${icon("scrollMouse")}</span>
   </section>`;
 }
 
